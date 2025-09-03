@@ -3,13 +3,15 @@ import { X, Calendar, MapPin, Share, Download, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ImageDoc } from '../types/image';
 import clsx from 'clsx';
+import { Trash2 } from 'lucide-react';
 
 interface ImageLightboxProps {
   image: ImageDoc | null;
   onClose: () => void;
+  onDelete?: (imageId: string) => void;
 }
 
-const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose }) => {
+const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose, onDelete }) => {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -26,13 +28,29 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose }) => {
     };
   }, [image, onClose]);
 
-  const formatDate = (timestamp: number) => {
+  const formatDate = (timestamp: string | number | Date) => {
     return new Date(timestamp).toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric',
     });
   };
+
+  const handleDelete = async () => {
+    if (!image || !onDelete) return;
+
+    const confirmed = window.confirm('Are you sure you want to delete this photo? This action cannot be undone.');
+    if (!confirmed) return;
+
+    try {
+      onDelete(image.id);
+      onClose();
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      alert('Failed to delete the image. Please try again.');
+    }
+  };
+
 
   const getCategoryInfo = (category: string) => {
     switch (category) {
@@ -49,7 +67,7 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose }) => {
 
   const handleShare = async () => {
     if (!image) return;
-    
+
     const shareData = {
       title: `${image.name} - GreenLens Gallery`,
       text: image.description,
@@ -70,7 +88,7 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose }) => {
 
   const handleDownload = () => {
     if (!image) return;
-    
+
     const link = document.createElement('a');
     link.href = image.url;
     link.download = `${image.name}.jpg`;
@@ -110,7 +128,7 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose }) => {
                 </span>
                 <h3 className="font-bold text-gray-800 text-lg">{image.name}</h3>
               </div>
-              
+
               <div className="flex items-center space-x-2">
                 <motion.button
                   whileHover={{ scale: 1.1 }}
@@ -121,7 +139,7 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose }) => {
                 >
                   <Share className="w-5 h-5" />
                 </motion.button>
-                
+
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
@@ -131,7 +149,17 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose }) => {
                 >
                   <Download className="w-5 h-5" />
                 </motion.button>
-                
+
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={handleDelete}
+                  className="p-3 text-gray-500 hover:text-red-600 rounded-xl hover:bg-red-50 transition-all duration-200"
+                  title="Delete"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </motion.button>
+
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
@@ -152,7 +180,7 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose }) => {
                   alt={image.name}
                   className="w-full h-64 sm:h-80 lg:h-full object-cover"
                 />
-                
+
                 {/* Like Button Overlay */}
                 <motion.button
                   whileHover={{ scale: 1.1 }}
@@ -180,10 +208,10 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose }) => {
                       </div>
                       <div>
                         <div className="font-medium text-gray-800">Date Captured</div>
-                        <div className="text-sm">{formatDate(image.createdAt)}</div>
+                        <div className="text-sm">{formatDate(image.created_at)}</div>
                       </div>
                     </div>
-                    
+
                     {image.location && (
                       <div className="flex items-center text-gray-600">
                         <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center mr-3">
@@ -207,13 +235,21 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose }) => {
                     <Share className="w-5 h-5 mr-2" />
                     Share This Photo
                   </button>
-                  
+
                   <button
                     onClick={handleDownload}
                     className="w-full flex items-center justify-center px-6 py-3 border-2 border-green-600 text-green-600 font-semibold rounded-xl hover:bg-green-50 transition-all duration-200"
                   >
                     <Download className="w-5 h-5 mr-2" />
                     Download Image
+                  </button>
+
+                  <button
+                    onClick={handleDelete}
+                    className="w-full flex items-center justify-center px-6 py-3 border-2 border-red-600 text-red-600 font-semibold rounded-xl hover:bg-red-50 transition-all duration-200"
+                  >
+                    <Trash2 className="w-5 h-5 mr-2" />
+                    Delete Photo
                   </button>
                 </div>
               </div>

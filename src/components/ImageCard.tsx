@@ -11,13 +11,21 @@ interface ImageCardProps {
 }
 
 const ImageCard: React.FC<ImageCardProps> = ({ image, onClick, className }) => {
-  const formatDate = (timestamp: number) => {
+  // const formatDate = (timestamp: number) => {
+  //   return new Date(timestamp).toLocaleDateString('en-US', {
+  //     year: 'numeric',
+  //     month: 'short',
+  //     day: 'numeric',
+  //   });
+  // };
+  const formatDate = (timestamp: string | number | Date) => {
     return new Date(timestamp).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
     });
   };
+
 
   const getCategoryInfo = (category: string) => {
     switch (category) {
@@ -53,10 +61,10 @@ const ImageCard: React.FC<ImageCardProps> = ({ image, onClick, className }) => {
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           loading="lazy"
         />
-        
+
         {/* Overlay on Hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        
+
         {/* View Button */}
         <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <div className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg">
@@ -75,7 +83,7 @@ const ImageCard: React.FC<ImageCardProps> = ({ image, onClick, className }) => {
           </span>
         </div>
       </div>
-      
+
       {/* Content */}
       <div className="p-6 space-y-4">
         <div className="space-y-2">
@@ -86,12 +94,12 @@ const ImageCard: React.FC<ImageCardProps> = ({ image, onClick, className }) => {
             {image.description}
           </p>
         </div>
-        
+
         {/* Metadata */}
         <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
           <div className="flex items-center space-x-1">
             <Calendar className="w-3 h-3" />
-            <span>{formatDate(image.createdAt)}</span>
+            <span>{formatDate(image.created_at)}</span>
           </div>
           {image.location && (
             <div className="flex items-center space-x-1">

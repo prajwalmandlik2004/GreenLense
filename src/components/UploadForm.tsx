@@ -47,6 +47,49 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
   const watchedData = watch();
 
   // Enhanced camera functionality
+  // const startCamera = async () => {
+  //   setCameraError(null);
+  //   try {
+  //     // Check if camera is available
+  //     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+  //       throw new Error('Camera not supported on this device');
+  //     }
+
+  //     const stream = await navigator.mediaDevices.getUserMedia({
+  //       video: { 
+  //         facingMode: 'environment', // Use back camera on mobile
+  //         width: { ideal: 1920, min: 640 },
+  //         height: { ideal: 1080, min: 480 }
+  //       }
+  //     });
+
+  //     setCameraStream(stream);
+  //     setShowCamera(true);
+
+  //     if (videoRef.current) {
+  //       videoRef.current.srcObject = stream;
+  //     }
+  //   } catch (error) {
+  //     console.error('Error accessing camera:', error);
+  //     let errorMessage = 'Unable to access camera. ';
+
+  //     if (error instanceof Error) {
+  //       if (error.name === 'NotAllowedError') {
+  //         errorMessage += 'Please allow camera permissions and try again.';
+  //       } else if (error.name === 'NotFoundError') {
+  //         errorMessage += 'No camera found on this device.';
+  //       } else if (error.name === 'NotSupportedError') {
+  //         errorMessage += 'Camera not supported on this browser.';
+  //       } else {
+  //         errorMessage += error.message;
+  //       }
+  //     }
+
+  //     setCameraError(errorMessage);
+  //   }
+  // };
+
+  // Update the startCamera function
   const startCamera = async () => {
     setCameraError(null);
     try {
@@ -56,23 +99,30 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { 
+        video: {
           facingMode: 'environment', // Use back camera on mobile
           width: { ideal: 1920, min: 640 },
           height: { ideal: 1080, min: 480 }
         }
       });
-      
+
       setCameraStream(stream);
       setShowCamera(true);
-      
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
+
+      // Wait for next tick to ensure video element is rendered
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play().catch(err => {
+            console.error('Error playing video:', err);
+            setCameraError('Failed to start camera preview');
+          });
+        }
+      }, 100);
     } catch (error) {
       console.error('Error accessing camera:', error);
       let errorMessage = 'Unable to access camera. ';
-      
+
       if (error instanceof Error) {
         if (error.name === 'NotAllowedError') {
           errorMessage += 'Please allow camera permissions and try again.';
@@ -84,10 +134,11 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
           errorMessage += error.message;
         }
       }
-      
+
       setCameraError(errorMessage);
     }
   };
+
 
   const stopCamera = () => {
     if (cameraStream) {
@@ -164,7 +215,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
     try {
       for (let i = 0; i < selectedFiles.length; i++) {
         const file = selectedFiles[i];
-        
+
         try {
           const imageDoc = await uploadImage(
             file,
@@ -175,23 +226,23 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
               location: data.location,
             },
             (progress) => {
-              setUploadProgress(prev => prev.map((item, index) => 
+              setUploadProgress(prev => prev.map((item, index) =>
                 index === i ? { ...item, progress: progress.progress } : item
               ));
             }
           );
 
-          setUploadProgress(prev => prev.map((item, index) => 
+          setUploadProgress(prev => prev.map((item, index) =>
             index === i ? { ...item, status: 'success' as const, progress: 100 } : item
           ));
 
           onUploadComplete(imageDoc);
         } catch (error) {
-          setUploadProgress(prev => prev.map((item, index) => 
-            index === i ? { 
-              ...item, 
-              status: 'error' as const, 
-              error: error instanceof Error ? error.message : 'Upload failed' 
+          setUploadProgress(prev => prev.map((item, index) =>
+            index === i ? {
+              ...item,
+              status: 'error' as const,
+              error: error instanceof Error ? error.message : 'Upload failed'
             } : item
           ));
         }
@@ -219,7 +270,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
         className="bg-white rounded-3xl shadow-xl p-6 sm:p-8 lg:p-10 border border-gray-100"
       >
         <div className="text-center mb-8">
-          <motion.div 
+          <motion.div
             className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg"
             whileHover={{ scale: 1.1, rotate: 5 }}
             transition={{ duration: 0.3 }}
@@ -245,7 +296,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
               placeholder="Give your image a descriptive name"
             />
             {errors.name && (
-              <motion.p 
+              <motion.p
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="text-sm text-red-600 flex items-center"
@@ -269,7 +320,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
             />
             <div className="flex justify-between items-center">
               {errors.description ? (
-                <motion.p 
+                <motion.p
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   className="text-sm text-red-600 flex items-center"
@@ -282,9 +333,8 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
                   Tell us what makes this moment special
                 </span>
               )}
-              <span className={`text-sm font-medium ${
-                (watchedData.description?.length || 0) > 180 ? 'text-red-500' : 'text-gray-500'
-              }`}>
+              <span className={`text-sm font-medium ${(watchedData.description?.length || 0) > 180 ? 'text-red-500' : 'text-gray-500'
+                }`}>
                 {watchedData.description?.length || 0}/200
               </span>
             </div>
@@ -306,7 +356,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
                 <option value="crops">🌾 Crops</option>
               </select>
               {errors.category && (
-                <motion.p 
+                <motion.p
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   className="text-sm text-red-600 flex items-center"
@@ -335,7 +385,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
             <label className="block text-sm font-semibold text-gray-700">
               Images *
             </label>
-            
+
             {/* Upload Options */}
             <div className="grid sm:grid-cols-2 gap-4">
               {/* File Upload */}
@@ -354,8 +404,8 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
                   htmlFor="file-upload"
                   className={clsx(
                     'flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-2xl transition-all duration-200 cursor-pointer group',
-                    (!isFormValid || isUploading) 
-                      ? 'border-gray-300 bg-gray-50 cursor-not-allowed opacity-50' 
+                    (!isFormValid || isUploading)
+                      ? 'border-gray-300 bg-gray-50 cursor-not-allowed opacity-50'
                       : 'border-green-300 bg-green-50/50 hover:border-green-500 hover:bg-green-50'
                   )}
                 >
@@ -413,9 +463,9 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
                 </span>
               </button>
             </div>
-            
+
             {!isFormValid && (
-              <motion.p 
+              <motion.p
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="text-sm text-amber-600 flex items-center justify-center bg-amber-50 p-4 rounded-xl border border-amber-200"
@@ -474,17 +524,42 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
                       <X className="w-6 h-6" />
                     </button>
                   </div>
-                  
+
                   <div className="space-y-6">
                     <div className="relative aspect-video bg-black rounded-2xl overflow-hidden shadow-inner">
-                      <video
+                      {/* <video
                         ref={videoRef}
                         autoPlay
                         playsInline
                         muted
                         className="w-full h-full object-cover"
                       />
-                      
+
+                      <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute top-4 left-4 w-6 h-6 border-l-2 border-t-2 border-white/50 rounded-tl-lg" />
+                        <div className="absolute top-4 right-4 w-6 h-6 border-r-2 border-t-2 border-white/50 rounded-tr-lg" />
+                        <div className="absolute bottom-4 left-4 w-6 h-6 border-l-2 border-b-2 border-white/50 rounded-bl-lg" />
+                        <div className="absolute bottom-4 right-4 w-6 h-6 border-r-2 border-b-2 border-white/50 rounded-br-lg" />
+                      </div> */}
+
+                      <video
+                        ref={videoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        className="w-full h-full object-cover"
+                        onLoadedMetadata={() => {
+                          // Ensure video plays when metadata is loaded
+                          if (videoRef.current) {
+                            videoRef.current.play().catch(console.error);
+                          }
+                        }}
+                        onError={(e) => {
+                          console.error('Video error:', e);
+                          setCameraError('Camera preview failed to load');
+                        }}
+                      />
+
                       {/* Camera overlay guides */}
                       <div className="absolute inset-0 pointer-events-none">
                         <div className="absolute top-4 left-4 w-6 h-6 border-l-2 border-t-2 border-white/50 rounded-tl-lg" />
@@ -493,7 +568,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
                         <div className="absolute bottom-4 right-4 w-6 h-6 border-r-2 border-b-2 border-white/50 rounded-br-lg" />
                       </div>
                     </div>
-                    
+
                     <div className="flex justify-center">
                       <motion.button
                         type="button"
@@ -630,7 +705,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
                           className={clsx(
                             'h-3 rounded-full transition-colors',
                             progress.status === 'success' ? 'bg-green-500' :
-                            progress.status === 'error' ? 'bg-red-500' : 'bg-blue-500'
+                              progress.status === 'error' ? 'bg-red-500' : 'bg-blue-500'
                           )}
                           initial={{ width: 0 }}
                           animate={{ width: `${progress.progress}%` }}
@@ -695,7 +770,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
           <h3 className="text-2xl font-bold text-gray-800 mb-2">📸 Photography Tips</h3>
           <p className="text-gray-600">Capture stunning farm photos with these professional tips</p>
         </div>
-        
+
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
           <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 text-center border border-white/50">
             <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center mx-auto mb-2">
@@ -739,7 +814,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
           <div className="absolute top-10 left-10 w-20 h-20 border border-white rounded-full" />
           <div className="absolute bottom-10 right-10 w-16 h-16 border border-white rounded-full" />
         </div>
-        
+
         <div className="relative z-10 text-center">
           <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Zap className="w-8 h-8 text-white" />
@@ -748,7 +823,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
           <p className="text-lg opacity-90 mb-6 max-w-2xl mx-auto">
             Your images are automatically optimized, compressed, and delivered at lightning speed
           </p>
-          
+
           <div className="grid sm:grid-cols-3 gap-4 text-sm">
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
               <Shield className="w-6 h-6 mx-auto mb-2" />

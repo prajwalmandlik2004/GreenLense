@@ -1,22 +1,50 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Filter, Grid, List } from 'lucide-react';
+import { Search, Filter, Grid, List, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ImageDoc, CategoryType } from '../types/image';
 import ImageCard from './ImageCard';
 import ImageLightbox from './ImageLightbox';
 import clsx from 'clsx';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 
 interface ImageGridProps {
   images: ImageDoc[];
   showCategoryFilter?: boolean;
+  onImageDelete?: (imageId: string) => void;
 }
 
-const ImageGrid: React.FC<ImageGridProps> = ({ images, showCategoryFilter = false }) => {
+const ImageGrid: React.FC<ImageGridProps> = ({ images, showCategoryFilter = false, onImageDelete }) => {
   const [selectedImage, setSelectedImage] = useState<ImageDoc | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CategoryType | 'all'>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'name'>('newest');
   const [viewMode, setViewMode] = useState<'grid' | 'masonry'>('grid');
+  const navigate = useNavigate();
+
+  const handleDeleteImage = async (imageId: string) => {
+    try {
+     
+      const { error } = await supabase
+        .from('images')
+        .delete()
+        .eq('id', imageId);
+
+      if (error) throw error;
+
+      
+      if (onImageDelete) {
+        onImageDelete(imageId);
+      } else {
+        
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      alert('Failed to delete image. Please try again.');
+    }
+  };
+
 
   const filteredAndSortedImages = useMemo(() => {
     let filtered = images;
@@ -37,15 +65,16 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, showCategoryFilter = fals
     return filtered.sort((a, b) => {
       switch (sortBy) {
         case 'newest':
-          return b.createdAt - a.createdAt;
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
         case 'oldest':
-          return a.createdAt - b.createdAt;
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         case 'name':
           return a.name.localeCompare(b.name);
         default:
           return 0;
       }
     });
+
   }, [images, selectedCategory, searchQuery, sortBy, showCategoryFilter]);
 
   return (
@@ -152,7 +181,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, showCategoryFilter = fals
           transition={{ duration: 0.4 }}
           className={clsx(
             'grid gap-6',
-            viewMode === 'grid' 
+            viewMode === 'grid'
               ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
               : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
           )}
@@ -190,7 +219,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, showCategoryFilter = fals
           </div>
           <h3 className="text-2xl font-bold text-gray-800 mb-4">No Images Found</h3>
           <p className="text-gray-600 mb-6 max-w-md mx-auto">
-            {searchQuery 
+            {searchQuery
               ? `No images match "${searchQuery}". Try adjusting your search terms.`
               : 'No images available in this category yet.'
             }
@@ -219,6 +248,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, showCategoryFilter = fals
       <ImageLightbox
         image={selectedImage}
         onClose={() => setSelectedImage(null)}
+        onDelete={handleDeleteImage}
       />
     </div>
   );

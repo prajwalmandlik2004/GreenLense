@@ -75,7 +75,7 @@ const Home: React.FC = () => {
             className="space-y-8 text-center lg:text-left"
           >
             <div className="space-y-6">
-              <motion.h1 
+              <motion.h1
                 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -89,14 +89,14 @@ const Home: React.FC = () => {
                   Perspective
                 </span>
               </motion.h1>
-              
-              <motion.p 
+
+              <motion.p
                 className="text-lg sm:text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto lg:mx-0"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
               >
-                Capturing the beauty of flowers, fields, and forests through the eyes of 
+                Capturing the beauty of flowers, fields, and forests through the eyes of
                 someone who works the land every day. Share your agricultural moments with our community.
               </motion.p>
             </div>
@@ -150,15 +150,17 @@ const Home: React.FC = () => {
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="relative"
+            className="relative w-full max-w-full overflow-hidden"
           >
             {!loading && featuredImages.length > 0 ? (
-              <div className="relative">
-                <HeroSlider images={featuredImages} height="h-80 sm:h-96 lg:h-[500px]" />
+              <div className="relative w-full">
+                <div className="w-full max-w-full">
+                  <HeroSlider images={featuredImages} height="h-80 sm:h-96 lg:h-[500px]" />
+                </div>
                 <div className="absolute -inset-4 bg-gradient-to-r from-green-600/20 to-green-400/20 rounded-3xl -z-10 blur-xl" />
               </div>
             ) : (
-              <div className="h-80 sm:h-96 lg:h-[500px] bg-gradient-to-br from-gray-100 to-green-50 rounded-3xl animate-pulse flex items-center justify-center">
+              <div className="h-80 sm:h-96 lg:h-[500px] bg-gradient-to-br from-gray-100 to-green-50 rounded-3xl animate-pulse flex items-center justify-center w-full">
                 <div className="text-center space-y-4">
                   <div className="w-16 h-16 bg-green-200 rounded-2xl animate-pulse mx-auto" />
                   <p className="text-gray-500 font-medium">Loading featured images...</p>
@@ -182,7 +184,7 @@ const Home: React.FC = () => {
             What You'll <span className="bg-gradient-to-r from-green-600 to-green-500 bg-clip-text text-transparent">Discover</span>
           </h2>
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Each gallery tells a unique story of our daily life on the farm, 
+            Each gallery tells a unique story of our daily life on the farm,
             from sunrise to sunset, through every season
           </p>
         </motion.div>
@@ -205,14 +207,14 @@ const Home: React.FC = () => {
                   className={`block ${feature.bgColor} rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-white/50 backdrop-blur-sm h-full`}
                 >
                   <div className="text-center space-y-6">
-                    <motion.div 
+                    <motion.div
                       className={`w-20 h-20 bg-gradient-to-br ${feature.color} rounded-3xl flex items-center justify-center mx-auto shadow-lg group-hover:shadow-xl`}
                       whileHover={{ scale: 1.1, rotate: 5 }}
                       transition={{ duration: 0.3 }}
                     >
                       <Icon className="w-10 h-10 text-white" />
                     </motion.div>
-                    
+
                     <div className="space-y-4">
                       <h3 className="text-2xl font-bold text-gray-800 group-hover:text-green-600 transition-colors">
                         {feature.title}
@@ -263,7 +265,7 @@ const Home: React.FC = () => {
                 Ready to Share Your Story?
               </h3>
               <p className="text-lg sm:text-xl text-green-100 max-w-3xl mx-auto leading-relaxed">
-                Join our growing community of farmers and nature lovers. Upload your photos 
+                Join our growing community of farmers and nature lovers. Upload your photos
                 and become part of our beautiful collection of agricultural and natural beauty.
               </p>
             </motion.div>
@@ -283,7 +285,7 @@ const Home: React.FC = () => {
                 Upload Your Photos
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Link>
-              
+
               <Link
                 to="/flowers"
                 className="inline-flex items-center px-8 py-4 border-2 border-white text-white font-semibold rounded-2xl hover:bg-white/10 transition-all duration-300 backdrop-blur-sm"

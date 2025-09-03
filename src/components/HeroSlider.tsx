@@ -34,12 +34,14 @@ const HeroSlider: React.FC<HeroSliderProps> = ({
     setMounted(true);
   }, []);
 
-  const formatDate = (timestamp: number) => {
+  const formatDate = (timestamp: string | number | Date) => {
     return new Date(timestamp).toLocaleDateString('en-US', {
+      year: 'numeric',
       month: 'short',
       day: 'numeric',
     });
   };
+
 
   if (!mounted || images.length === 0) {
     return (
@@ -90,19 +92,19 @@ const HeroSlider: React.FC<HeroSliderProps> = ({
                 className="w-full h-full object-cover"
                 loading={index === 0 ? 'eager' : 'lazy'}
               />
-              
+
               {/* Enhanced Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-              
+
               {/* Content Overlay */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
-                className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 text-white"
+                className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 text-white mb-5"
               >
                 <div className="max-w-2xl">
-                  <motion.h3 
+                  <motion.h3
                     className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 leading-tight"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -110,8 +112,8 @@ const HeroSlider: React.FC<HeroSliderProps> = ({
                   >
                     {image.name}
                   </motion.h3>
-                  
-                  <motion.p 
+
+                  <motion.p
                     className="text-sm sm:text-base lg:text-lg opacity-90 line-clamp-2 leading-relaxed mb-4"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -120,7 +122,7 @@ const HeroSlider: React.FC<HeroSliderProps> = ({
                     {image.description}
                   </motion.p>
 
-                  <motion.div
+                  {/* <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.9 }}
@@ -128,7 +130,7 @@ const HeroSlider: React.FC<HeroSliderProps> = ({
                   >
                     <div className="flex items-center space-x-1">
                       <Calendar className="w-4 h-4" />
-                      <span>{formatDate(image.createdAt)}</span>
+                      <span>{formatDate(image.created_at)}</span>
                     </div>
                     {image.location && (
                       <div className="flex items-center space-x-1">
@@ -136,7 +138,7 @@ const HeroSlider: React.FC<HeroSliderProps> = ({
                         <span>{image.location}</span>
                       </div>
                     )}
-                  </motion.div>
+                  </motion.div> */}
                 </div>
               </motion.div>
             </div>
@@ -161,7 +163,7 @@ const HeroSlider: React.FC<HeroSliderProps> = ({
       </Swiper>
 
       {/* Custom pagination styles */}
-      <style jsx>{`
+      <style>{`
         .swiper-pagination {
           bottom: 1.5rem !important;
         }
