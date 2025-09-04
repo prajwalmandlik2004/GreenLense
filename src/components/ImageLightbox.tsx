@@ -6,7 +6,6 @@ import clsx from 'clsx';
 import { Trash2 } from 'lucide-react';
 import { Edit, Save, X as XIcon } from 'lucide-react';
 import { useState } from 'react';
-import toast from 'react-hot-toast';
 
 interface ImageLightboxProps {
   image: ImageDoc | null;
