@@ -14,7 +14,7 @@ const Upload: React.FC = () => {
   const handleUploadComplete = (image: ImageDoc) => {
     setUploadedImages(prev => [image, ...prev]);
     setShowSuccess(true);
-    
+
     // Auto-hide success message and navigate
     setTimeout(() => {
       setShowSuccess(false);
@@ -33,7 +33,7 @@ const Upload: React.FC = () => {
       >
         <div className="max-w-4xl mx-auto">
           <UploadForm onUploadComplete={handleUploadComplete} />
-          
+
           {/* Success Message */}
           {showSuccess && (
             <motion.div
@@ -46,7 +46,7 @@ const Upload: React.FC = () => {
               <span className="font-semibold">Image uploaded successfully!</span>
             </motion.div>
           )}
-          
+
           {/* Recent Uploads */}
           {uploadedImages.length > 0 && (
             <motion.div
@@ -63,7 +63,7 @@ const Upload: React.FC = () => {
                   Your images have been added to the gallery and are now live
                 </p>
               </div>
-              
+
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
                 {uploadedImages.map((image, index) => (
                   <motion.div

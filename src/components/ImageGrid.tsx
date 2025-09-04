@@ -36,12 +36,11 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, showCategoryFilter = fals
 
       toast.success('Image deleted successfully!');
 
+      setSelectedImage(null);
 
       if (onImageDelete) {
         onImageDelete(imageId);
-      } else {
-        navigate(0);
-      }
+      } 
     } catch (error) {
       console.error('Error deleting image:', error);
       toast.error('Failed to delete image. Please try again.');
@@ -68,10 +67,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, showCategoryFilter = fals
 
       if (onImageUpdate) {
         onImageUpdate(imageId, updates);
-      } else {
-        navigate(0);
-      }
-
+      } 
       console.log('Image updated successfully');
     } catch (error) {
       console.error('Error updating image:', error);

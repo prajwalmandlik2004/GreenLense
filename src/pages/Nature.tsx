@@ -11,6 +11,16 @@ const Nature: React.FC = () => {
   const [images, setImages] = useState<ImageDoc[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const handleImageDelete = (imageId: string) => {
+    setImages(prev => prev.filter(img => img.id !== imageId));
+  };
+
+  const handleImageUpdate = (imageId: string, updates: Partial<ImageDoc>) => {
+    setImages(prev => prev.map(img =>
+      img.id === imageId ? { ...img, ...updates } : img
+    ));
+  };
+
   useEffect(() => {
     const loadImages = async () => {
       try {
@@ -64,16 +74,16 @@ const Nature: React.FC = () => {
             </motion.div>
             <Mountain className="w-6 h-6 text-green-500" />
           </div>
-          
+
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
             <span className="bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent">
               Nature
             </span>
             <span className="text-gray-800"> Gallery</span>
           </h1>
-          
+
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Breathtaking landscapes and peaceful moments captured in the wild. 
+            Breathtaking landscapes and peaceful moments captured in the wild.
             From misty mountains to serene forests, discover the natural world around our farm.
           </p>
         </motion.div>
@@ -85,19 +95,20 @@ const Nature: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="mb-16"
           >
-            <HeroSlider 
-              images={sliderImages} 
+            <HeroSlider
+              images={sliderImages}
               height="h-80 sm:h-96 lg:h-[500px]"
             />
           </motion.div>
         )}
-        
+
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
         >
-          <ImageGrid images={images} />
+          <ImageGrid images={images} onImageDelete={handleImageDelete}
+            onImageUpdate={handleImageUpdate} />
         </motion.div>
       </Section>
     </div>
