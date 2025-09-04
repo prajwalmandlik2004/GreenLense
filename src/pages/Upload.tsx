@@ -43,7 +43,7 @@ const Upload: React.FC = () => {
               className="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 bg-green-600 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-3"
             >
               <CheckCircle className="w-6 h-6" />
-              <span className="font-semibold">Upload successful!</span>
+              <span className="font-semibold">Image uploaded successfully!</span>
             </motion.div>
           )}
           
