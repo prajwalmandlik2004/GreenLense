@@ -7,14 +7,16 @@ import ImageLightbox from './ImageLightbox';
 import clsx from 'clsx';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import toast from 'react-hot-toast';
 
 interface ImageGridProps {
   images: ImageDoc[];
   showCategoryFilter?: boolean;
   onImageDelete?: (imageId: string) => void;
+  onImageUpdate?: (imageId: string, updates: Partial<ImageDoc>) => void;
 }
 
-const ImageGrid: React.FC<ImageGridProps> = ({ images, showCategoryFilter = false, onImageDelete }) => {
+const ImageGrid: React.FC<ImageGridProps> = ({ images, showCategoryFilter = false, onImageDelete, onImageUpdate }) => {
   const [selectedImage, setSelectedImage] = useState<ImageDoc | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CategoryType | 'all'>('all');
@@ -24,7 +26,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, showCategoryFilter = fals
 
   const handleDeleteImage = async (imageId: string) => {
     try {
-     
+
       const { error } = await supabase
         .from('images')
         .delete()
@@ -32,43 +34,50 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, showCategoryFilter = fals
 
       if (error) throw error;
 
-      
+      toast.success('Image deleted successfully!');
+
+
       if (onImageDelete) {
         onImageDelete(imageId);
       } else {
-        
-        window.location.reload();
+        navigate(0);
       }
     } catch (error) {
       console.error('Error deleting image:', error);
-      alert('Failed to delete image. Please try again.');
+      toast.error('Failed to delete image. Please try again.');
     }
   };
 
-const handleEditImage = async (imageId: string, updates: Partial<ImageDoc>) => {
-  try {
-    const { error } = await supabase
-      .from('images')
-      .update({
-        name: updates.name,
-        description: updates.description,
-        category: updates.category,
-        location: updates.location
-      })
-      .eq('id', imageId);
+  const handleEditImage = async (imageId: string, updates: Partial<ImageDoc>) => {
+    try {
+      const { error } = await supabase
+        .from('images')
+        .update({
+          name: updates.name,
+          description: updates.description,
+          category: updates.category,
+          location: updates.location
+        })
+        .eq('id', imageId);
 
-    if (error) throw error;
+      if (error) throw error;
 
-    setSelectedImage(prev => prev ? { ...prev, ...updates } : null);
+      toast.success('Data updated successfully!');
 
-    window.location.reload();
-    
-    console.log('Image updated successfully');
-  } catch (error) {
-    console.error('Error updating image:', error);
-    alert('Failed to update image. Please try again.');
-  }
-};
+      setSelectedImage(prev => prev ? { ...prev, ...updates } : null);
+
+      if (onImageUpdate) {
+        onImageUpdate(imageId, updates);
+      } else {
+        navigate(0);
+      }
+
+      console.log('Image updated successfully');
+    } catch (error) {
+      console.error('Error updating image:', error);
+      alert('Failed to update image. Please try again.');
+    }
+  };
 
 
   const filteredAndSortedImages = useMemo(() => {

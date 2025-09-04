@@ -8,6 +8,7 @@ import Nature from './pages/Nature';
 import Crops from './pages/Crops';
 import Upload from './pages/Upload';
 import About from './pages/About';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
@@ -25,6 +26,38 @@ function App() {
           </Routes>
         </main>
         <Footer />
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: '#363636',
+              color: '#fff',
+              padding: '16px',
+              borderRadius: '12px',
+              fontSize: '14px',
+              fontWeight: '500',
+            },
+            success: {
+              style: {
+                background: '#10B981',
+              },
+              iconTheme: {
+                primary: '#fff',
+                secondary: '#10B981',
+              },
+            },
+            error: {
+              style: {
+                background: '#EF4444',
+              },
+              iconTheme: {
+                primary: '#fff',
+                secondary: '#EF4444',
+              },
+            },
+          }}
+        />
       </div>
     </Router>
   );
