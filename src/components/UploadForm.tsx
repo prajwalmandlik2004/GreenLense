@@ -10,7 +10,7 @@ import clsx from 'clsx';
 
 const uploadSchema = z.object({
   name: z.string().min(1, 'Image name is required').max(100, 'Name too long'),
-  description: z.string().min(10, 'Description must be at least 10 characters').max(200, 'Description too long'),
+  description: z.string().min(1, 'Description must be at least 10 characters').max(200, 'Description too long'),
   category: z.enum(['flowers', 'nature', 'crops'], {
     required_error: 'Please select a category',
   }),
@@ -499,49 +499,34 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
+                className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-2 sm:p-4"
               >
                 <motion.div
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0.9, opacity: 0 }}
-                  className="bg-white rounded-3xl p-6 max-w-2xl w-full max-h-[90vh] overflow-hidden"
+                  className="bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-6 w-full h-full sm:max-w-4xl sm:max-h-[95vh] sm:w-auto sm:h-auto overflow-hidden"
                 >
-                  <div className="flex justify-between items-center mb-6">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                        <Camera className="w-6 h-6 text-blue-600" />
+                  <div className="flex justify-between items-center mb-3 sm:mb-6">
+                    <div className="flex items-center space-x-2 sm:space-x-3">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                        <Camera className="w-4 h-4 sm:w-6 sm:h-6 text-blue-600" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-gray-800">Camera Capture</h3>
-                        <p className="text-sm text-gray-500">Position your subject and tap capture</p>
+                        <h3 className="text-lg sm:text-xl font-bold text-gray-800">Camera Capture</h3>
+                        <p className="text-xs sm:text-sm text-gray-500">Position your subject and tap capture</p>
                       </div>
                     </div>
                     <button
                       onClick={stopCamera}
                       className="p-2 text-gray-500 hover:text-red-600 rounded-xl hover:bg-gray-100 transition-colors"
                     >
-                      <X className="w-6 h-6" />
+                      <X className="w-5 h-5 sm:w-6 sm:h-6" />
                     </button>
                   </div>
 
-                  <div className="space-y-6">
-                    <div className="relative aspect-video bg-black rounded-2xl overflow-hidden shadow-inner">
-                      {/* <video
-                        ref={videoRef}
-                        autoPlay
-                        playsInline
-                        muted
-                        className="w-full h-full object-cover"
-                      />
-
-                      <div className="absolute inset-0 pointer-events-none">
-                        <div className="absolute top-4 left-4 w-6 h-6 border-l-2 border-t-2 border-white/50 rounded-tl-lg" />
-                        <div className="absolute top-4 right-4 w-6 h-6 border-r-2 border-t-2 border-white/50 rounded-tr-lg" />
-                        <div className="absolute bottom-4 left-4 w-6 h-6 border-l-2 border-b-2 border-white/50 rounded-bl-lg" />
-                        <div className="absolute bottom-4 right-4 w-6 h-6 border-r-2 border-b-2 border-white/50 rounded-br-lg" />
-                      </div> */}
-
+                  <div className="space-y-4 sm:space-y-6">
+                    <div className="relative bg-black rounded-xl sm:rounded-2xl overflow-hidden shadow-inner h-[calc(100vh-200px)] sm:h-[60vh] min-h-[400px]">
                       <video
                         ref={videoRef}
                         autoPlay
@@ -549,7 +534,6 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
                         muted
                         className="w-full h-full object-cover"
                         onLoadedMetadata={() => {
-                          // Ensure video plays when metadata is loaded
                           if (videoRef.current) {
                             videoRef.current.play().catch(console.error);
                           }
@@ -575,13 +559,13 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
                         onClick={capturePhoto}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="w-20 h-20 bg-gradient-to-br from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-full flex items-center justify-center text-white shadow-xl hover:shadow-2xl transition-all duration-200"
+                        className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-full flex items-center justify-center text-white shadow-xl hover:shadow-2xl transition-all duration-200"
                       >
-                        <Camera className="w-10 h-10" />
+                        <Camera className="w-8 h-8 sm:w-10 sm:h-10" />
                       </motion.button>
                     </div>
 
-                    <div className="text-center text-sm text-gray-500 space-y-1">
+                    <div className="text-center text-xs sm:text-sm text-gray-500 space-y-1">
                       <p>📱 Tip: Hold your phone steady and ensure good lighting</p>
                       <p>🔄 The back camera will be used automatically on mobile</p>
                     </div>
@@ -767,7 +751,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
           <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Camera className="w-8 h-8 text-white" />
           </div>
-          <h3 className="text-2xl font-bold text-gray-800 mb-2">📸 Photography Tips</h3>
+          <h3 className="text-2xl font-bold text-gray-800 mb-2">Photography Tips</h3>
           <p className="text-gray-600">Capture stunning farm photos with these professional tips</p>
         </div>
 

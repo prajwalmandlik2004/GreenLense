@@ -21,7 +21,7 @@ export interface UploadProgress {
 export interface CloudinaryUploadOptions {
   folder?: string;
   quality?: 'auto' | number;
-  format?: 'auto' | 'webp' | 'jpg' | 'png';
+  format?: 'auto' | 'webp' | 'jpg' | 'png' | 'jpeg';
   width?: number;
   height?: number;
 }

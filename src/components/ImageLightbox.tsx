@@ -4,14 +4,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ImageDoc } from '../types/image';
 import clsx from 'clsx';
 import { Trash2 } from 'lucide-react';
+import { Edit, Save, X as XIcon } from 'lucide-react';
+import { useState } from 'react';
 
 interface ImageLightboxProps {
   image: ImageDoc | null;
   onClose: () => void;
   onDelete?: (imageId: string) => void;
+  onEdit?: (imageId: string, updates: Partial<ImageDoc>) => void;
 }
 
-const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose, onDelete }) => {
+const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose, onDelete, onEdit }) => {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -43,11 +46,54 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose, onDelete 
     if (!confirmed) return;
 
     try {
-      onDelete(image.id);
       onClose();
+      await onDelete(image.id);
     } catch (error) {
       console.error('Error deleting image:', error);
       alert('Failed to delete the image. Please try again.');
+    }
+  };
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({
+    name: '',
+    description: '',
+    location: '',
+    category: 'flowers' as ImageDoc['category']
+  });
+
+  useEffect(() => {
+    if (image) {
+      setEditData({
+        name: image.name,
+        description: image.description,
+        location: image.location || '',
+        category: image.category
+      });
+    }
+  }, [image]);
+
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing);
+    if (!isEditing && image) {
+      setEditData({
+        name: image.name,
+        description: image.description,
+        location: image.location || '',
+        category: image.category
+      });
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!image || !onEdit) return;
+
+    try {
+      await onEdit(image.id, editData);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating image:', error);
+      alert('Failed to update image. Please try again.');
     }
   };
 
@@ -126,7 +172,7 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose, onDelete 
                   <span className="mr-1">{getCategoryInfo(image.category).emoji}</span>
                   {image.category}
                 </span>
-                <h3 className="font-bold text-gray-800 text-lg">{image.name}</h3>
+                {/* <h3 className="font-bold text-gray-800 text-lg">{image.name}</h3> */}
               </div>
 
               <div className="flex items-center space-x-2">
@@ -148,6 +194,16 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose, onDelete 
                   title="Download"
                 >
                   <Download className="w-5 h-5" />
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={handleEditToggle}
+                  className="p-3 text-gray-500 hover:text-purple-600 rounded-xl hover:bg-purple-50 transition-all duration-200"
+                  title="Edit"
+                >
+                  <Edit className="w-5 h-5" />
                 </motion.button>
 
                 <motion.button
@@ -195,10 +251,61 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose, onDelete 
               <div className="lg:w-96 p-6 lg:p-8 space-y-6 overflow-y-auto">
                 <div className="space-y-4">
                   <div>
-                    <h4 className="font-bold text-gray-800 mb-3 text-lg">Description</h4>
-                    <p className="text-gray-600 leading-relaxed text-base">
-                      {image.description}
-                    </p>
+                    {isEditing ? (
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Name</label>
+                          <input
+                            type="text"
+                            value={editData.name}
+                            onChange={(e) => setEditData(prev => ({ ...prev, name: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                          <textarea
+                            value={editData.description}
+                            onChange={(e) => setEditData(prev => ({ ...prev, description: e.target.value }))}
+                            rows={3}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+                          <select
+                            value={editData.category}
+                            onChange={(e) => setEditData(prev => ({ ...prev, category: e.target.value as ImageDoc['category'] }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                          >
+                            <option value="flowers">🌸 Flowers</option>
+                            <option value="nature">🌲 Nature</option>
+                            <option value="crops">🌾 Crops</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Location</label>
+                          <input
+                            type="text"
+                            value={editData.location}
+                            onChange={(e) => setEditData(prev => ({ ...prev, location: e.target.value }))}
+                            placeholder="Enter location"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <h4 className="font-bold text-gray-800 text-lg">Name</h4>
+                        <p className="text-gray-600 leading-relaxed text-base">
+                          {image.name}
+                        </p>
+                        <h4 className="font-bold text-gray-800 mt-4 text-lg">Description</h4>
+                        <p className="text-gray-600 leading-relaxed text-base">
+                          {image.description}
+                        </p>
+                      </>
+                    )}
                   </div>
 
                   <div className="space-y-4 pt-4 border-t border-gray-200">
@@ -212,7 +319,7 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose, onDelete 
                       </div>
                     </div>
 
-                    {image.location && (
+                    {(image.location || isEditing) && !isEditing && (
                       <div className="flex items-center text-gray-600">
                         <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center mr-3">
                           <MapPin className="w-5 h-5" />
@@ -227,6 +334,26 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose, onDelete 
                 </div>
 
                 {/* Action Buttons */}
+
+                {isEditing && (
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={handleSaveEdit}
+                      className="flex-1 flex items-center justify-center px-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-all duration-200"
+                    >
+                      <Save className="w-5 h-5 mr-2" />
+                      Save
+                    </button>
+                    <button
+                      onClick={handleEditToggle}
+                      className="flex-1 flex items-center justify-center px-6 py-3 border-2 border-gray-300 text-gray-600 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-200"
+                    >
+                      <XIcon className="w-5 h-5 mr-2" />
+                      Cancel
+                    </button>
+                  </div>
+                )}
+
                 <div className="space-y-3 pt-6 border-t border-gray-200">
                   <button
                     onClick={handleShare}
@@ -244,13 +371,13 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({ image, onClose, onDelete 
                     Download Image
                   </button>
 
-                  <button
+                  {/* <button
                     onClick={handleDelete}
                     className="w-full flex items-center justify-center px-6 py-3 border-2 border-red-600 text-red-600 font-semibold rounded-xl hover:bg-red-50 transition-all duration-200"
                   >
                     <Trash2 className="w-5 h-5 mr-2" />
                     Delete Photo
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>

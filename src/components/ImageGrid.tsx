@@ -45,6 +45,31 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, showCategoryFilter = fals
     }
   };
 
+const handleEditImage = async (imageId: string, updates: Partial<ImageDoc>) => {
+  try {
+    const { error } = await supabase
+      .from('images')
+      .update({
+        name: updates.name,
+        description: updates.description,
+        category: updates.category,
+        location: updates.location
+      })
+      .eq('id', imageId);
+
+    if (error) throw error;
+
+    setSelectedImage(prev => prev ? { ...prev, ...updates } : null);
+
+    window.location.reload();
+    
+    console.log('Image updated successfully');
+  } catch (error) {
+    console.error('Error updating image:', error);
+    alert('Failed to update image. Please try again.');
+  }
+};
+
 
   const filteredAndSortedImages = useMemo(() => {
     let filtered = images;
@@ -249,6 +274,7 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, showCategoryFilter = fals
         image={selectedImage}
         onClose={() => setSelectedImage(null)}
         onDelete={handleDeleteImage}
+        onEdit={handleEditImage}
       />
     </div>
   );
